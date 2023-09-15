@@ -1,9 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './Add.css'
 import { registerApi } from '../service/allApis'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import { registerContext } from '../employeeContext/ContextShare';
+
 
 
 function Add() {
+
+    // to get context
+    const {registerData,setRegisterData}=useContext(registerContext)
+
+    // state to hold error response
+    const [errorMsg,setErrorMsg]=useState("")
 
     // state to hold image data
     const [Image, setImage] = useState("")
@@ -22,13 +33,16 @@ function Add() {
         location: ""
     })
 
+    // create an object for usenavigate 
+    const navigate = useNavigate()
+
     // function to update userData 
-    const userDetails=(e)=>{
+    const userDetails = (e) => {
         // let value=e.target.value
         // let name=e.target.name 
-        let {value,name}=e.target
+        let { value, name } = e.target
 
-        setUserData({...userData,[name]:value})
+        setUserData({ ...userData, [name]: value })
 
     }
 
@@ -53,46 +67,113 @@ function Add() {
     // console.log(preview);
 
     // create a function for submit button
-    const handleSubmit=async(e)=>{
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
         // header  - contentType:multipart/formData
-        const headerConfig={
-            "Content-Type":"multipart/form-data"
+        const headerConfig = {
+            "Content-Type": "multipart/form-data"
         }
 
         // body form data
-        const data=new FormData()
+        const data = new FormData()
 
         // access datas from userData
-        const {fname,lname,email,gender,mobile,status,location}=userData
+        const { fname, lname, email, gender, mobile, status, location } = userData
 
-        // add datas in formdata
-        data.append('user_profile',Image)
-        data.append('fname',fname)
-        data.append('lname',lname)
-        data.append('email',email)
-        data.append('gender',gender)
-        data.append('mobile',mobile)
-        data.append('status',status)
-        data.append('location',location)
-
-        // api call
-        const response=await registerApi(headerConfig,data)
-        console.log(response);
-        if(response.status==200){
-            alert("employee added")
+        if (fname == "") {
+            toast.error('fname required')
         }
-        else{
-            alert("employee already present")
+        else if (lname == "") {
+            toast.error('lname required')
+
+        }
+        else if (email == "") {
+            toast.error('email required')
+
+        }
+        else if (gender == "") {
+            toast.error('gender required')
+
+        }
+        else if (mobile == "") {
+            toast.error('mobile required')
+
+        }
+        else if (status == "") {
+            toast.error('status required')
+
+        }
+        else if (Image == "") {
+            toast.error('Image required')
+
+        }
+        else if (location == "") {
+            toast.error('location required')
+
         }
 
+        else {
+            // add datas in formdata
+            data.append('user_profile', Image)
+            data.append('fname', fname)
+            data.append('lname', lname)
+            data.append('email', email)
+            data.append('gender', gender)
+            data.append('mobile', mobile)
+            data.append('status', status)
+            data.append('location', location)
+
+            // api call
+            const response = await registerApi(headerConfig, data)
+            console.log(response);
+            if (response.status == 200) {
+
+                // update context
+                setRegisterData(response.data)
+
+                // reset userData and image
+                setUserData({
+                    ...userData,
+                    fname: "",
+                    lname: "",
+                    email: "",
+                    gender: "",
+                    mobile: "",
+                    status: "",
+                    location: ""
+
+                })
+                setImage("")
+
+                // redierect to home
+                navigate('/')
+
+
+            }
+            else {
+                
+                // console.log(response.response.data);
+                setErrorMsg(response.response.data)
+
+            }
+        }
     }
 
 
 
     return (
         <div>
+
+            {
+                errorMsg?<div class="alert alert-danger  w-50 container" role="alert"
+                onClose={()=>setErrorMsg("")} >
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {errorMsg}
+            </div>:""
+            }
+
+
             <h3 style={{ color: '#2d0d80' }} className='text-center mt-3'>Create New Employee</h3>
 
             <form id='d' class='container  p-5 w-75 mt-2'>
@@ -109,7 +190,7 @@ function Add() {
                         <input onChange={userDetails} name='fname' required type="text" class="form-control" id="exampleInputFname" />
                         <label for="exampleInputEmail" class="form-label mt-3">Email</label>
                         <input onChange={userDetails} name='email' required type="email" class="form-control" id="exampleInputEmail" />
-                        
+
                         <label class='mt-3' htmlFor="">gender</label> <br />
                         <div className='ms-3'>
                             <input onChange={userDetails} name='gender' value={'male'} type="radio" id='m' /> <label class="form-label mt-2 ms-2" htmlFor="m">male</label> <br />
@@ -130,7 +211,7 @@ function Add() {
                         {/* dropdown */}
                         <label for="exampleI" class="form-label mt-4">Employee Status</label>
 
-                        <select onChange={userDetails} name='status' class="dropdown w-100 form-control"  id="s1" >
+                        <select onChange={userDetails} name='status' class="dropdown w-100 form-control" id="s1" >
                             <option class="dropdown-item disabled" aria-disabled="true" value="">Select ...</option>
 
                             <option class="dropdown-item" value={'active'}>Active</option>
@@ -148,7 +229,10 @@ function Add() {
                     <button onClick={handleSubmit} style={{ backgroundColor: '#2d0d80', color: 'white' }}
                         type="submit" class="btn btn-primary w-50">Submit</button>
 
-                </div>            </form>
+                </div>
+            </form>
+
+            <ToastContainer position="top-center" theme="light" />
         </div>
     )
 }

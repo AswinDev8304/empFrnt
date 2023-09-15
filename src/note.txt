@@ -1,0 +1,13 @@
+react-toastify - front end library for toast(alerts)
+
+
+react context
+-------------
+
+props - parent to child - props drilling
+
+-redux - store
+-context - context used to store data 
+
+-hook - craeteContext,useContext
+
