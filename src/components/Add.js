@@ -195,7 +195,7 @@ function Add() {
                         <div className='ms-3'>
                             <input onChange={userDetails} name='gender' value={'male'} type="radio" id='m' /> <label class="form-label mt-2 ms-2" htmlFor="m">male</label> <br />
                             <input onChange={userDetails} name='gender' value={'female'} type="radio" id='f' /><label class="form-label mt-1 ms-2" htmlFor="f">female</label>
-
+ 
                         </div>
                         <label class="form-label mt-3" htmlFor="">Choose Profile Picture</label> <br />
                         <input onChange={setProfile} required type="file" className='form-control' />
